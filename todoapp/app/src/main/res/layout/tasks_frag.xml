@@ -22,16 +22,21 @@
 
         <variable
             name="viewmodel"
-            type="com.example.android.architecture.blueprints.todoapp.tasks.TasksViewModel" />
+            type="com.example.android.architecture.blueprints.todoapp.tasks.TasksViewData" />
+
+        <variable
+            name="listener"
+            type="com.example.android.architecture.blueprints.todoapp.tasks.TasksActions"/>
 
     </data>
+
 
 <com.example.android.architecture.blueprints.todoapp.ScrollChildSwipeRefreshLayout
     android:id="@+id/refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:onRefresh="@{viewmodel}"
     app:refreshing="@{viewmodel.dataLoading}">
+    <!--TODO fix onRefresh-->
 
     <RelativeLayout
         android:id="@+id/tasksContainer"
@@ -61,7 +66,6 @@
 
             <ListView
                 android:id="@+id/tasks_list"
-                app:items="@{viewmodel.items}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </LinearLayout>
@@ -98,7 +102,7 @@
                 android:background="@drawable/touch_feedback"
                 android:gravity="center"
                 android:text="@string/no_tasks_add"
-                android:onClick="@{() -> viewmodel.addNewTask()}"
+                android:onClick="@{() -> listener.onAddNewTaskClick()}"
                 android:visibility="@{viewmodel.tasksAddViewVisible ? View.VISIBLE : View.GONE}" />
 
         </LinearLayout>

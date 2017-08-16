@@ -23,7 +23,7 @@
 
         <variable
             name="viewmodel"
-            type="com.example.android.architecture.blueprints.todoapp.addedittask.AddEditTaskViewModel"/>
+            type="com.example.android.architecture.blueprints.todoapp.addedittask.AddEditTaskViewData"/>
     </data>
 
     <com.example.android.architecture.blueprints.todoapp.ScrollChildSwipeRefreshLayout
@@ -52,17 +52,18 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/title_hint"
-                    android:text="@={viewmodel.title}"
+                    android:text="@{viewmodel.title}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:maxLines="1"/>
 
+                <!--TODO Add on text change listner to achive two way data binding-->
                 <EditText
                     android:id="@+id/add_task_description"
                     android:layout_width="match_parent"
                     android:layout_height="350dp"
                     android:gravity="top"
                     android:hint="@string/description_hint"
-                    android:text="@={viewmodel.description}"/>
+                    android:text="@{viewmodel.description}"/>
 
             </LinearLayout>
         </ScrollView>

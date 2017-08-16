@@ -22,7 +22,7 @@
 
         <variable
             name="viewmodel"
-            type="com.example.android.architecture.blueprints.todoapp.taskdetail.TaskDetailViewModel" />
+            type="com.example.android.architecture.blueprints.todoapp.taskdetail.TaskDetailViewData" />
 
         <variable
             name="listener"
@@ -33,7 +33,7 @@
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:onRefreshListener="@{viewmodel.onRefresh}"
+        app:onRefreshListener="@{listener.onRefresh}"
         app:refreshing="@{viewmodel.dataLoading}">
 
     <LinearLayout
@@ -79,7 +79,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 android:onClick="@{(view) -> listener.onCompleteChanged(view)}"
-                android:checked="@{viewmodel.completed}" />
+                android:checked="@{viewmodel.task.completed}" />
 
             <TextView
                 android:id="@+id/task_detail_title"
