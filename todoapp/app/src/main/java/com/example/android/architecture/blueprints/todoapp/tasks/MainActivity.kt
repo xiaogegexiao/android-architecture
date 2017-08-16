@@ -2,6 +2,7 @@ package com.example.android.architecture.blueprints.todoapp.tasks
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.app.Fragment
@@ -10,6 +11,9 @@ import android.support.v4.widget.DrawerLayout
 import android.view.MenuItem
 import com.example.android.architecture.blueprints.todoapp.LifecycleAppCompatActivity
 import com.example.android.architecture.blueprints.todoapp.R
+import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
+import com.example.android.architecture.blueprints.todoapp.data.source.local.TasksLocalDataSource
+import com.example.android.architecture.blueprints.todoapp.data.source.remote.TasksRemoteDataSource
 import com.example.android.architecture.blueprints.todoapp.util.ActivityUtils
 
 interface ViewModelProvider {
@@ -24,10 +28,16 @@ class MainActivity : LifecycleAppCompatActivity(), ViewModelProvider {
     override fun <V : ViewModel> obtainViewModel(viewModelClass: Class<V>): V {
 
         // TODO use factory and view ModelProvider for injection
-        return when(viewModelClass) {
-            TasksViewModel::class.java -> TasksViewModel() as V
-            MainViewModel::class.java -> MainViewModel() as V
-            else ->  throw RuntimeException("Unknow viewModelClass " + viewModelClass)
+        return when (viewModelClass) {
+            TasksViewModel::class.java -> {
+                TasksViewModel(
+                        TasksRepository.getInstance(TasksRemoteDataSource.instance, TasksLocalDataSource.getInstance(applicationContext)),
+                        obtainViewModel(MainViewModel::class.java)) as V
+            }
+            MainViewModel::class.java -> {
+                ViewModelProviders.of(this).get(MainViewModel::class.java) as V
+            }
+            else -> throw RuntimeException("Unknow viewModelClass " + viewModelClass)
         }
     }
 
@@ -39,13 +49,19 @@ class MainActivity : LifecycleAppCompatActivity(), ViewModelProvider {
 
         viewModel = obtainViewModel(MainViewModel::class.java)
         viewModel.viewData.observe(this, Observer { data ->
-            when(data) {
-               TasksData -> setupViewFragment(TasksFragment.newInstance())
-            }
+            handleViewData(data!!)
         })
 
         setupToolbar()
         setupNavigationDrawer()
+    }
+
+    private fun  handleViewData(data: Data) {
+        when(data){
+            TasksData -> setupViewFragment(TasksFragment.newInstance(Bundle()))
+            is TaskDetailsData -> {}
+            NewTaskData -> {}
+        }
     }
 
 

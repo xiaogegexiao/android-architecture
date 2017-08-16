@@ -26,7 +26,18 @@ abstract class BaseReactViewModel<T> : ViewModel() {
     private val attachedLifeData: MutableMap<LiveData<*>, Attacher<*>> = mutableMapOf()
 
     val viewData: SafeLiveData<T> by lazy {
-        MutableSafeLiveData(initialViewData)
+        MutableSafeLiveData(initialViewData, active = {
+            onActiveView()
+            attachedLifeData.forEach({ (_, attacher) ->
+                attacher.attach()
+            })
+        }, inactive = {
+            onInactiveView()
+            attachedLifeData.forEach({ (_, attacher) ->
+                attacher.detach()
+            })
+        }
+        )
     }
 
     protected fun updateViewData(newViewData: T) {
@@ -69,4 +80,8 @@ abstract class BaseReactViewModel<T> : ViewModel() {
             }
         }
     }
+
+    internal open fun onActiveView(){}
+
+    internal open fun onInactiveView(){}
 }

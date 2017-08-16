@@ -47,5 +47,5 @@ ext {
     espressoVersion = '2.2.2'
 
     // Architecture Components dependencies
-    archLifecycleVersion = "1.0.0-alpha3"
+    archLifecycleVersion = "1.0.0-alpha8"
 }

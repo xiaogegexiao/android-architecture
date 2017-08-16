@@ -16,82 +16,71 @@
 
 package com.example.android.architecture.blueprints.todoapp.tasks
 
-import android.arch.lifecycle.LifecycleFragment
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.content.ContextCompat
-import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.PopupMenu
 import android.view.*
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.databinding.TasksFragBinding
+import com.example.android.architecture.blueprints.todoapp.framework.BaseReactFragment
+import com.example.android.architecture.blueprints.todoapp.framework.FragmentCreator
 import java.util.*
 
-interface TasksActions {
+interface TasksViewActions {
     fun onAddNewTaskClick()
-    fun onRefresh()
+    fun onRefreshPull()
 }
 
 /**
  * Display a grid of [Task]s. User can choose to view all, active or completed tasks.
  */
-class TasksFragment : LifecycleFragment() {
+class TasksFragment : BaseReactFragment<Bundle, TasksViewData, TasksViewModel>() {
 
-    companion object {
-        fun newInstance(): TasksFragment {
-            return TasksFragment()
-        }
-    }
+    companion object : FragmentCreator<Bundle, TasksFragment>(TasksFragment::class.java)
 
     private lateinit var mTasksFragBinding: TasksFragBinding
+    private lateinit var mListAdapter: TasksAdapter
 
-    private var mListAdapter: TasksAdapter? = null
-
-    override fun onResume() {
-        super.onResume()
-//        mTasksViewModel!!.start()
-    }
-
-    private lateinit var mTasksViewModel: TasksViewModel
+    override fun createViewModel() = (activity as ViewModelProvider).obtainViewModel(getType())
+    override fun getType(): Class<TasksViewModel> = TasksViewModel::class.java
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         mTasksFragBinding = TasksFragBinding.inflate(inflater, container, false)
-
-        mTasksViewModel = (activity as ViewModelProvider).obtainViewModel(TasksViewModel::class.java)
-
-        mTasksFragBinding.viewmodel = TasksViewData(true, true, R.string.label_all, R.string.add_task, R.string.no_tasks_active, true, emptyList())
-
-
 
         setHasOptionsMenu(true)
 
         return mTasksFragBinding.root
     }
 
+    override fun applyViewData(viewData: TasksViewData) {
+        mTasksFragBinding.viewmodel = viewData
+        mListAdapter.tasks = viewData.items
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item!!.itemId) {
-//            R.id.menu_clear -> mTasksViewModel!!.clearCompletedTasks()
+            R.id.menu_clear -> viewModel.onMenuClear()
             R.id.menu_filter -> showFilteringPopUpMenu()
-//            R.id.menu_refresh -> mTasksViewModel!!.loadTasks(true)
+            R.id.menu_refresh -> viewModel.onMenuRefresh()
         }
         return true
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater!!.inflate(R.menu.tasks_fragment_menu, menu)
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater) {
+        inflater.inflate(R.menu.tasks_fragment_menu, menu)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        mTasksFragBinding.listener = viewModel
+
         setupSnackbar()
-
         setupFab()
-
         setupListAdapter()
-
         setupRefreshLayout()
     }
 
@@ -108,12 +97,12 @@ class TasksFragment : LifecycleFragment() {
         popup.menuInflater.inflate(R.menu.filter_tasks, popup.menu)
 
         popup.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-//                R.id.active -> mTasksViewModel!!.setFiltering(TasksFilterType.ACTIVE_TASKS)
-//                R.id.completed -> mTasksViewModel!!.setFiltering(TasksFilterType.COMPLETED_TASKS)
-//                else -> mTasksViewModel!!.setFiltering(TasksFilterType.ALL_TASKS)
-            }
-//            mTasksViewModel!!.loadTasks(false)
+            viewModel.setFiltering(
+                    when (item.itemId) {
+                        R.id.active -> TasksFilterType.ACTIVE_TASKS
+                        R.id.completed -> TasksFilterType.COMPLETED_TASKS
+                        else -> TasksFilterType.ALL_TASKS
+                    })
             true
         }
 
@@ -132,7 +121,7 @@ class TasksFragment : LifecycleFragment() {
 
         mListAdapter = TasksAdapter(
                 ArrayList<Task>(0),
-                mTasksViewModel
+                viewModel
         )
         listView.adapter = mListAdapter
     }

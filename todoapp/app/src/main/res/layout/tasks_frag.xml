@@ -26,7 +26,7 @@
 
         <variable
             name="listener"
-            type="com.example.android.architecture.blueprints.todoapp.tasks.TasksActions"/>
+            type="com.example.android.architecture.blueprints.todoapp.tasks.TasksViewActions"/>
 
     </data>
 
@@ -35,6 +35,7 @@
     android:id="@+id/refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    app:onRefreshListener="@{() -> listener.onRefreshPull()}"
     app:refreshing="@{viewmodel.dataLoading}">
     <!--TODO fix onRefresh-->
 

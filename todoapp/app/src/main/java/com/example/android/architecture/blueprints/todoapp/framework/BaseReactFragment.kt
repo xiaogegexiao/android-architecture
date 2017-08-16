@@ -12,6 +12,8 @@ open class FragmentCreator<T : Parcelable, F : BaseReactFragment<T, *, *>>(val f
     }
 }
 
+
+
 abstract class BaseReactFragment<I : Parcelable, D, T : BaseReactViewModel<D>> : LifecycleFragment() {
 
     companion object {
