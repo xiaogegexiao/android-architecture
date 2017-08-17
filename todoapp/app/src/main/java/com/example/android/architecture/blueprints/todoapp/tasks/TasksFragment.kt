@@ -26,8 +26,8 @@ import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.databinding.TasksFragBinding
 import com.example.android.architecture.blueprints.todoapp.framework.BaseReactFragment
 import com.example.android.architecture.blueprints.todoapp.framework.FragmentCreator
+import com.example.android.architecture.blueprints.todoapp.main.ViewModelProvider
 import com.example.android.architecture.blueprints.todoapp.util.SnackbarUtils
-import com.example.android.architecture.blueprints.todoapp.util.ViewMessage
 import java.util.*
 
 interface TasksViewActions {

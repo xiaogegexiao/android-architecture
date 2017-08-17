@@ -7,8 +7,6 @@ import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepo
 import com.example.android.architecture.blueprints.todoapp.framework.BaseReactViewModel
 import com.example.android.architecture.blueprints.todoapp.tasks.TasksFilterType.*
 import com.example.android.architecture.blueprints.todoapp.util.ViewMessage
-import android.databinding.adapters.NumberPickerBindingAdapter.setValue
-
 
 
 interface TasksActions {
@@ -16,7 +14,7 @@ interface TasksActions {
     fun onNewTask()
 }
 
-class TasksViewModel(private val tasksRepository: TasksRepository, private val tasksActions: TasksActions) : BaseReactViewModel<TasksViewData>(), TasksItemActions, TasksViewActions {
+class TasksViewModel(private val tasksRepository: TasksRepository, private val tasksActions: TasksActions) : BaseReactViewModel<TasksViewData>(), TasksViewItemActions, TasksViewActions {
 
     private var currentFiltering: TasksFilterType = ALL_TASKS
 
@@ -142,7 +140,7 @@ class TasksViewModel(private val tasksRepository: TasksRepository, private val t
     }
 
     fun addNewTask() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        tasksActions.onNewTask()
     }
 
 //    fun handleActivityResult(requestCode: Int, resultCode: Int) {

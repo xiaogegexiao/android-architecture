@@ -1,6 +1,7 @@
-package com.example.android.architecture.blueprints.todoapp.tasks
+package com.example.android.architecture.blueprints.todoapp.main
 
 import com.example.android.architecture.blueprints.todoapp.framework.BaseReactViewModel
+import com.example.android.architecture.blueprints.todoapp.tasks.TasksActions
 
 interface Data
 object TasksData : Data
@@ -9,6 +10,8 @@ object NewTaskData : Data
 
 class MainViewModel : BaseReactViewModel<Data>(), TasksActions {
 
+    override val initialViewData = TasksData
+
     override fun onTaskDetails(taskId: String) {
         updateViewData(TaskDetailsData(taskId))
     }
@@ -16,6 +19,4 @@ class MainViewModel : BaseReactViewModel<Data>(), TasksActions {
     override fun onNewTask() {
         updateViewData(NewTaskData)
     }
-
-    override val initialViewData = TasksData
 }

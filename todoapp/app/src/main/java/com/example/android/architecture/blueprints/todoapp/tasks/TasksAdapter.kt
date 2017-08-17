@@ -27,13 +27,13 @@ import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.databinding.TaskItemBinding
 
 
-interface TasksItemActions {
+interface TasksViewItemActions {
     fun onTaskChecked(task: Task, checked: Boolean)
     fun onTaskClicked(task: Task)
 }
 
 class TasksAdapter(tasks: List<Task>,
-                   private val mTasksItemActions: TasksItemActions) : BaseAdapter() {
+                   private val mTasksViewItemActions: TasksViewItemActions) : BaseAdapter() {
 
     var tasks: List<Task> = tasks
         set(value) {
@@ -69,11 +69,11 @@ class TasksAdapter(tasks: List<Task>,
         val userActionsListener = object : TaskItemUserActionsListener {
             override fun onCompleteChanged(task: Task, v: View) {
                 val checked = (v as CheckBox).isChecked
-                mTasksItemActions.onTaskChecked(task, checked)
+                mTasksViewItemActions.onTaskChecked(task, checked)
             }
 
             override fun onTaskClicked(task: Task) {
-                mTasksItemActions.onTaskClicked(task)
+                mTasksViewItemActions.onTaskClicked(task)
             }
         }
 
