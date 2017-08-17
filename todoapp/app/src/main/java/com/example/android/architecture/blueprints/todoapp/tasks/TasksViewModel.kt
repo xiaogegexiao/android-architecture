@@ -6,6 +6,10 @@ import com.example.android.architecture.blueprints.todoapp.data.source.TasksData
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
 import com.example.android.architecture.blueprints.todoapp.framework.BaseReactViewModel
 import com.example.android.architecture.blueprints.todoapp.tasks.TasksFilterType.*
+import com.example.android.architecture.blueprints.todoapp.util.ViewMessage
+import android.databinding.adapters.NumberPickerBindingAdapter.setValue
+
+
 
 interface TasksActions {
     fun onTaskDetails(taskId: String)
@@ -39,8 +43,10 @@ class TasksViewModel(private val tasksRepository: TasksRepository, private val t
     override fun onTaskChecked(task: Task, checked: Boolean) {
         if (checked) {
             tasksRepository.completeTask(task)
+            showViewMessage(R.string.task_marked_complete)
         } else {
             tasksRepository.activateTask(task)
+            showViewMessage(R.string.task_marked_active)
         }
         loadTasks(false, false)
     }
@@ -84,9 +90,13 @@ class TasksViewModel(private val tasksRepository: TasksRepository, private val t
     }
 
     fun onMenuClear() {
-        tasksRepository.clearCompletedTasks();
-        //mSnackbarText.setValue(R.string.completed_tasks_cleared);
+        tasksRepository.clearCompletedTasks()
+        showViewMessage(R.string.completed_tasks_cleared)
         loadTasks(true, false)
+    }
+
+    private fun showViewMessage(message: Int) {
+        updateViewData(viewData.value.copy(message = ViewMessage(message)))
     }
 
     /**
@@ -130,4 +140,18 @@ class TasksViewModel(private val tasksRepository: TasksRepository, private val t
             }
         })
     }
+
+    fun addNewTask() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+//    fun handleActivityResult(requestCode: Int, resultCode: Int) {
+//        if (AddEditTaskActivity.REQUEST_CODE === requestCode) {
+//            when (resultCode) {
+//                TaskDetailActivity.EDIT_RESULT_OK -> mSnackbarText.setValue(R.string.successfully_saved_task_message)
+//                AddEditTaskActivity.ADD_EDIT_RESULT_OK -> mSnackbarText.setValue(R.string.successfully_added_task_message)
+//                TaskDetailActivity.DELETE_RESULT_OK -> mSnackbarText.setValue(R.string.successfully_deleted_task_message)
+//            }
+//        }
+//    }
 }

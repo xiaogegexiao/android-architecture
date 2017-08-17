@@ -119,6 +119,4 @@ class MainActivity : LifecycleAppCompatActivity(), ViewModelProvider {
         }
         return super.onOptionsItemSelected(item)
     }
-
-
 }

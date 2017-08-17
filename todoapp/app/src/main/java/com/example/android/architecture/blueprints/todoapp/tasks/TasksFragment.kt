@@ -26,6 +26,8 @@ import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.databinding.TasksFragBinding
 import com.example.android.architecture.blueprints.todoapp.framework.BaseReactFragment
 import com.example.android.architecture.blueprints.todoapp.framework.FragmentCreator
+import com.example.android.architecture.blueprints.todoapp.util.SnackbarUtils
+import com.example.android.architecture.blueprints.todoapp.util.ViewMessage
 import java.util.*
 
 interface TasksViewActions {
@@ -58,6 +60,7 @@ class TasksFragment : BaseReactFragment<Bundle, TasksViewData, TasksViewModel>()
     override fun applyViewData(viewData: TasksViewData) {
         mTasksFragBinding.viewmodel = viewData
         mListAdapter.tasks = viewData.items
+        SnackbarUtils.showMessage(view, viewData.message)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -78,19 +81,11 @@ class TasksFragment : BaseReactFragment<Bundle, TasksViewData, TasksViewModel>()
 
         mTasksFragBinding.listener = viewModel
 
-        setupSnackbar()
         setupFab()
         setupListAdapter()
         setupRefreshLayout()
     }
 
-    private fun setupSnackbar() {
-//        mTasksViewModel!!.getSnackbarMessage().observe(this, object : SnackbarMessage.SnackbarObserver() {
-//            fun onNewMessage(@StringRes snackbarMessageResourceId: Int) {
-//                SnackbarUtils.showSnackbar(view, getString(snackbarMessageResourceId))
-//            }
-//        })
-    }
 
     private fun showFilteringPopUpMenu() {
         val popup = PopupMenu(context, activity.findViewById<View>(R.id.menu_filter))
@@ -113,7 +108,7 @@ class TasksFragment : BaseReactFragment<Bundle, TasksViewData, TasksViewModel>()
         val fab = activity.findViewById<View>(R.id.fab_add_task) as FloatingActionButton
 
         fab.setImageResource(R.drawable.ic_add)
-//        fab.setOnClickListener { mTasksViewModel!!.addNewTask() }
+        fab.setOnClickListener { viewModel.addNewTask() }
     }
 
     private fun setupListAdapter() {
@@ -137,6 +132,4 @@ class TasksFragment : BaseReactFragment<Bundle, TasksViewData, TasksViewModel>()
         // Set the scrolling view in the custom SwipeRefreshLayout.
         swipeRefreshLayout.setScrollUpChild(listView)
     }
-
-
 }
