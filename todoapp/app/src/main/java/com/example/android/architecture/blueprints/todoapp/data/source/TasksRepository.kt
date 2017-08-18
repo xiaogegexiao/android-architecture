@@ -159,12 +159,7 @@ private constructor(tasksRemoteDataSource: TasksDataSource,
 
         // Is the task in the local data source? If not, query the network.
         mTasksLocalDataSource.getTask(taskId, object : TasksDataSource.GetTaskCallback {
-            override fun onTaskLoaded(task: Task?) {
-                if (task == null) {
-                    onDataNotAvailable()
-                    return
-                }
-
+            override fun onTaskLoaded(task: Task) {
                 mCachedTasks.put(task.id, task)
 
                 callback.onTaskLoaded(task)
@@ -172,11 +167,7 @@ private constructor(tasksRemoteDataSource: TasksDataSource,
 
             override fun onDataNotAvailable() {
                 mTasksRemoteDataSource.getTask(taskId, object : TasksDataSource.GetTaskCallback {
-                    override fun onTaskLoaded(task: Task?) {
-                        if (task == null) {
-                            onDataNotAvailable()
-                            return
-                        }
+                    override fun onTaskLoaded(task: Task) {
                         mCachedTasks.put(task.id, task)
 
                         callback.onTaskLoaded(task)

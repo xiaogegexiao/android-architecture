@@ -31,9 +31,7 @@ interface TasksDataSource {
     }
 
     interface GetTaskCallback {
-
-        //FIXME is it neccessay to have a nullable task, maybe another method would be cleaner
-        fun onTaskLoaded(task: Task?)
+        fun onTaskLoaded(task: Task)
 
         fun onDataNotAvailable()
     }

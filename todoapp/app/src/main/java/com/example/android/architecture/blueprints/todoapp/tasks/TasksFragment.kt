@@ -21,12 +21,13 @@ import android.support.design.widget.FloatingActionButton
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.PopupMenu
 import android.view.*
+import com.example.android.architecture.blueprints.todoapp.DependencyProvider
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.databinding.TasksFragBinding
 import com.example.android.architecture.blueprints.todoapp.framework.BaseReactFragment
 import com.example.android.architecture.blueprints.todoapp.framework.FragmentCreator
-import com.example.android.architecture.blueprints.todoapp.main.ViewModelProvider
+import com.example.android.architecture.blueprints.todoapp.main.MainActivityDependencies
 import com.example.android.architecture.blueprints.todoapp.util.SnackbarUtils
 import java.util.*
 
@@ -40,12 +41,18 @@ interface TasksViewActions {
  */
 class TasksFragment : BaseReactFragment<Bundle, TasksViewData, TasksViewModel>() {
 
-    companion object : FragmentCreator<Bundle, TasksFragment>(TasksFragment::class.java)
+    companion object : FragmentCreator<Bundle, TasksFragment>(TasksFragment::class.java) {
+        fun newInstance() : TasksFragment = newInstance(Bundle())
+    }
 
     private lateinit var mTasksFragBinding: TasksFragBinding
     private lateinit var mListAdapter: TasksAdapter
 
-    override fun createViewModel() = (activity as ViewModelProvider).obtainViewModel(getType())
+    @Suppress("UNCHECKED_CAST")
+    override fun createViewModel() : TasksViewModel {
+        val dependencies = (activity as DependencyProvider<MainActivityDependencies>).dependencies
+        return TasksViewModel(dependencies.taskRepository(), dependencies.tasksActions())
+    }
     override fun getType(): Class<TasksViewModel> = TasksViewModel::class.java
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
@@ -105,7 +112,7 @@ class TasksFragment : BaseReactFragment<Bundle, TasksViewData, TasksViewModel>()
     }
 
     private fun setupFab() {
-        val fab = activity.findViewById<View>(R.id.fab_add_task) as FloatingActionButton
+        val fab = activity.findViewById<View>(R.id.floating_action_button) as FloatingActionButton
 
         fab.setImageResource(R.drawable.ic_add)
         fab.setOnClickListener { viewModel.addNewTask() }

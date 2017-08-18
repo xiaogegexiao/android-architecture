@@ -1,47 +1,47 @@
 package com.example.android.architecture.blueprints.todoapp.main
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentActivity
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.view.MenuItem
+import com.example.android.architecture.blueprints.todoapp.Dependencies
+import com.example.android.architecture.blueprints.todoapp.DependencyProvider
 import com.example.android.architecture.blueprints.todoapp.LifecycleAppCompatActivity
 import com.example.android.architecture.blueprints.todoapp.R
+import com.example.android.architecture.blueprints.todoapp.addedittask.AddEditActions
+import com.example.android.architecture.blueprints.todoapp.addedittask.AddEditTaskFragment
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
 import com.example.android.architecture.blueprints.todoapp.data.source.local.TasksLocalDataSource
 import com.example.android.architecture.blueprints.todoapp.data.source.remote.TasksRemoteDataSource
+import com.example.android.architecture.blueprints.todoapp.tasks.TasksActions
 import com.example.android.architecture.blueprints.todoapp.tasks.TasksFragment
-import com.example.android.architecture.blueprints.todoapp.tasks.TasksViewModel
 import com.example.android.architecture.blueprints.todoapp.util.ActivityUtils
 
-interface ViewModelProvider {
-    fun <V : ViewModel> obtainViewModel(viewModelClass: Class<V>): V
+class MainActivityDependencies(private val activity: FragmentActivity) : Dependencies {
+
+    override fun taskRepository(): TasksRepository {
+        return TasksRepository.getInstance(TasksRemoteDataSource.instance, TasksLocalDataSource.getInstance(activity))
+    }
+
+    fun mainViewModel(): MainViewModel = ViewModelProviders.of(activity).get(MainViewModel::class.java)
+
+    fun tasksActions(): TasksActions = mainViewModel()
+
+    fun addEditActions(): AddEditActions = mainViewModel()
 }
 
-class MainActivity : LifecycleAppCompatActivity(), ViewModelProvider {
+class MainActivity : LifecycleAppCompatActivity(), DependencyProvider<MainActivityDependencies> {
+
+    override val dependencies: MainActivityDependencies by lazy {
+        MainActivityDependencies(this)
+    }
 
     private lateinit var drawerLayout: DrawerLayout
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <V : ViewModel> obtainViewModel(viewModelClass: Class<V>): V {
-
-        // TODO use factory and view ModelProvider for injection
-        return when (viewModelClass) {
-            TasksViewModel::class.java -> {
-                TasksViewModel(
-                        TasksRepository.getInstance(TasksRemoteDataSource.instance, TasksLocalDataSource.getInstance(applicationContext)),
-                        obtainViewModel(MainViewModel::class.java)) as V
-            }
-            MainViewModel::class.java -> {
-                ViewModelProviders.of(this).get(MainViewModel::class.java) as V
-            }
-            else -> throw RuntimeException("Unknow viewModelClass " + viewModelClass)
-        }
-    }
 
     private lateinit var viewModel: MainViewModel
 
@@ -49,7 +49,7 @@ class MainActivity : LifecycleAppCompatActivity(), ViewModelProvider {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.tasks_act)
 
-        viewModel = obtainViewModel(MainViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         viewModel.viewData.observe(this, Observer { data ->
             handleViewData(data!!)
         })
@@ -58,11 +58,23 @@ class MainActivity : LifecycleAppCompatActivity(), ViewModelProvider {
         setupNavigationDrawer()
     }
 
-    private fun  handleViewData(data: Data) {
-        when(data){
-            TasksData -> setupViewFragment(TasksFragment.newInstance(Bundle()))
-            is TaskDetailsData -> {}
-            NewTaskData -> {}
+    private fun handleViewData(data: Data) {
+        when (data) {
+            TasksData -> {
+                supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_menu)
+                supportActionBar!!.title = ""
+                setupViewFragment(TasksFragment.newInstance())
+            }
+            is EditTaskData -> {
+                supportActionBar!!.setHomeAsUpIndicator(R.drawable.abc_ic_ab_back_material)
+                supportActionBar!!.setTitle(R.string.edit_task)
+                setupViewFragment(AddEditTaskFragment.newInstance(data.taskId))
+            }
+            NewTaskData -> {
+                supportActionBar!!.setHomeAsUpIndicator(R.drawable.abc_ic_ab_back_material)
+                supportActionBar!!.setTitle(R.string.add_task)
+                setupViewFragment(AddEditTaskFragment.newInstance())
+            }
         }
     }
 
@@ -77,7 +89,7 @@ class MainActivity : LifecycleAppCompatActivity(), ViewModelProvider {
 
     private fun setupToolbar() {
         setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_menu)
+        supportActionBar!!.setDisplayShowHomeEnabled(true)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     }
 
@@ -102,7 +114,8 @@ class MainActivity : LifecycleAppCompatActivity(), ViewModelProvider {
                 }
                 else -> {
                 }
-            }// Do nothing, we're already on that screen
+            }
+            // Do nothing, we're already on that screen
             // Close the navigation drawer when an item is selected.
             menuItem.isChecked = true
             drawerLayout.closeDrawers()
@@ -115,10 +128,18 @@ class MainActivity : LifecycleAppCompatActivity(), ViewModelProvider {
         when (item.itemId) {
             android.R.id.home -> {
                 // Open the navigation drawer when the home icon is selected from the toolbar.
-                drawerLayout.openDrawer(GravityCompat.START)
+                if (!viewModel.onBackPress()) {
+                    drawerLayout.openDrawer(GravityCompat.START)
+                }
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        if (!viewModel.onBackPress()) {
+            super.onBackPressed()
+        }
     }
 }

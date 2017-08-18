@@ -50,7 +50,9 @@ private constructor() : TasksDataSource {
 
         // Simulate network by delaying the execution.
         val handler = Handler()
-        handler.postDelayed({ callback.onTaskLoaded(task) }, SERVICE_LATENCY_IN_MILLIS.toLong())
+        handler.postDelayed({
+            if (task == null) callback.onDataNotAvailable() else callback.onTaskLoaded(task)
+        }, SERVICE_LATENCY_IN_MILLIS.toLong())
     }
 
     override fun saveTask(task: Task) {

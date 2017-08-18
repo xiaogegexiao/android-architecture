@@ -24,6 +24,10 @@
         <variable
             name="viewmodel"
             type="com.example.android.architecture.blueprints.todoapp.addedittask.AddEditTaskViewData"/>
+
+        <variable
+            name="listener"
+            type="com.example.android.architecture.blueprints.todoapp.addedittask.AddEditTaskFragment.OnEditTextChanged"/>
     </data>
 
     <com.example.android.architecture.blueprints.todoapp.ScrollChildSwipeRefreshLayout
@@ -48,6 +52,7 @@
                 android:visibility="@{viewmodel.dataLoading ? View.GONE : View.VISIBLE}">
 
                 <EditText
+                    android:onTextChanged="@{(s, start, count, after) -> listener.onTitleChanged(s.toString())}"
                     android:id="@+id/add_task_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -58,6 +63,7 @@
 
                 <!--TODO Add on text change listner to achive two way data binding-->
                 <EditText
+                    android:onTextChanged="@{(s, start, count, after) -> listener.onDescriptionChanged(s.toString())}"
                     android:id="@+id/add_task_description"
                     android:layout_width="match_parent"
                     android:layout_height="350dp"
